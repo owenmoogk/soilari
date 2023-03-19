@@ -1,0 +1,3 @@
+Nitrogen: {{widgets.FertilizerData.parsed.Nitrogen}}
+Potassium: {{widgets.FertilizerData.parsed.Potassium}}
+Phosphorus: {{widgets.FertilizerData.parsed.Phosphorus}}

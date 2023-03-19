@@ -1,0 +1,490 @@
+{
+  "description": "Barry the Barista-Bot",
+  "states": [
+    {
+      "name": "Trigger",
+      "type": "trigger",
+      "transitions": [
+        {
+          "next": "DataType",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "incomingCall"
+        },
+        {
+          "event": "incomingConversationMessage"
+        },
+        {
+          "event": "incomingRequest"
+        },
+        {
+          "event": "incomingParent"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -10,
+          "y": -530
+        }
+      }
+    },
+    {
+      "name": "send_message_1",
+      "type": "send-message",
+      "transitions": [
+        {
+          "next": "FarmSize",
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 160,
+          "y": 530
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Data:\n\n{{widgets.http_2.parsed.properties.layers[0].name}} - {{widgets.http_2.parsed.properties.layers[0].depths[0].values.mean}} {{widgets.http_2.parsed.properties.layers[0].unit_measure.mapped_units}}\n{{widgets.http_2.parsed.properties.layers[1].name}} - {{widgets.http_2.parsed.properties.layers[1].depths[0].values.mean}} {{widgets.http_2.parsed.properties.layers[1].unit_measure.mapped_units}}\n{{widgets.http_2.parsed.properties.layers[2].name}} - {{widgets.http_2.parsed.properties.layers[2].depths[0].values.mean}} {{widgets.http_2.parsed.properties.layers[2].unit_measure.mapped_units}}\n{{widgets.http_2.parsed.properties.layers[3].name}} - {{widgets.http_2.parsed.properties.layers[3].depths[0].values.mean}} {{widgets.http_2.parsed.properties.layers[3].unit_measure.mapped_units}}\n\nThe water storage content of your soil is approximately {{widgets.irrigationData.parsed.WSC}} \ncentimeters / meter."
+      }
+    },
+    {
+      "name": "Latitude",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "Longitude",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -180,
+          "y": 40
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Enter Latitude:",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "Longitude",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "http_2",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -200,
+          "y": 390
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "Enter Longitude:",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "FarmSize",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "RootDepth",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 140,
+          "y": 750
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "How large is your farm (in km^2)?",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "Copy_of_send_message_2",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 130,
+          "y": 1500
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "Based on this, each watering cycle should contain no more than {{widgets.function_1.parsed.maxWater}} liters."
+      }
+    },
+    {
+      "name": "DataType",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "split_2",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -200,
+          "y": -340
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "What are you looking for data about (Fertilizing, Irrigation, Soil Composition)?",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "split_2",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "Latitude",
+          "event": "noMatch"
+        },
+        {
+          "next": "CropType2",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value contains fertilizer",
+              "arguments": [
+                "{{widgets.DataType.inbound.Body}}"
+              ],
+              "type": "contains",
+              "value": "fertilizing"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.DataType.inbound.Body}}",
+        "offset": {
+          "x": 190,
+          "y": -300
+        }
+      }
+    },
+    {
+      "name": "FertilizerData",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "fertilizerReccomendation",
+          "event": "success"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 690,
+          "y": 250
+        },
+        "method": "GET",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "url": "https://retoolapi.dev/cxseqX/data/1"
+      }
+    },
+    {
+      "name": "CropType2",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "farmSize2",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 760,
+          "y": -280
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "What crop are you growing (wheat, barley, oats, rye, corn):",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "irrigationData",
+      "type": "run-function",
+      "transitions": [
+        {
+          "next": "send_message_1",
+          "event": "success"
+        },
+        {
+          "event": "fail"
+        }
+      ],
+      "properties": {
+        "service_sid": "default",
+        "environment_sid": "",
+        "offset": {
+          "x": 140,
+          "y": 280
+        },
+        "function_sid": "",
+        "parameters": [
+          {
+            "value": "{{widgets.http_2.parsed.properties.layers[0].depths[0].values.mean}}",
+            "key": "density"
+          },
+          {
+            "value": "{{widgets.http_2.parsed.properties.layers[1].depths[0].values.mean }}",
+            "key": "clay"
+          },
+          {
+            "value": "{{ widgets.http_2.parsed.properties.layers[2].depths[0].values.mean }}",
+            "key": "sand"
+          },
+          {
+            "value": "{{widgets.http_2.parsed.properties.layers[3].depths[0].values.mean}}",
+            "key": "silt"
+          }
+        ],
+        "url": "https://sand-panther-7573.twil.io/irrigation"
+      }
+    },
+    {
+      "name": "http_2",
+      "type": "make-http-request",
+      "transitions": [
+        {
+          "next": "irrigationData",
+          "event": "success"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 170,
+          "y": 40
+        },
+        "method": "GET",
+        "content_type": "application/x-www-form-urlencoded;charset=utf-8",
+        "url": "https://rest.isric.org/soilgrids/v2.0/properties/query?lon={{widgets.Longitude.inbound.Body}}&lat={{widgets.Latitude.inbound.Body}}&property=clay&property=bdod&property=sand&property=silt&depth=0-5cm&depth=0-30cm&value=Q0.5&value=mean"
+      }
+    },
+    {
+      "name": "Copy_of_send_message_3",
+      "type": "send-message",
+      "transitions": [
+        {
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 770,
+          "y": 730
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "{{widgets.FertilizerData.parsed.Name}} consumes:\n\nNitrogen: {{widgets.FertilizerData.parsed.Nitrogen}}\nPotassium: {{widgets.FertilizerData.parsed.Potassium}}\nPhosphorus: {{widgets.FertilizerData.parsed.Phosphorus}}\n\nPounds per acre per year.\n\nBased on this, we reccomend using the following amounts of fertilizer for your farm (per harvest):\n\nAmmonium Phosphate: {{widgets.fertilizerReccomendation.parsed.ammoniumPhosphate}} kg\nPotassium Chloride: {{widgets.fertilizerReccomendation.parsed.kcl}} kg\nUrea: {{widgets.fertilizerReccomendation.parsed.urea}} kg"
+      }
+    },
+    {
+      "name": "RootDepth",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "function_1",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 140,
+          "y": 980
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "How deep are your plant's roots (in meters)?",
+        "timeout": "3600"
+      }
+    },
+    {
+      "name": "function_1",
+      "type": "run-function",
+      "transitions": [
+        {
+          "next": "Copy_of_send_message_2",
+          "event": "success"
+        },
+        {
+          "event": "fail"
+        }
+      ],
+      "properties": {
+        "service_sid": "default",
+        "environment_sid": "",
+        "offset": {
+          "x": 140,
+          "y": 1220
+        },
+        "function_sid": "",
+        "parameters": [
+          {
+            "value": "{{widgets.FarmSize.inbound.Body}}",
+            "key": "farmSize"
+          },
+          {
+            "value": "{{widgets.RootDepth.inbound.Body}}",
+            "key": "depth"
+          },
+          {
+            "value": "{{widgets.irrigationData.parsed.WSC}}",
+            "key": "wsc"
+          }
+        ],
+        "url": "https://sand-panther-7573.twil.io/water"
+      }
+    },
+    {
+      "name": "fertilizerReccomendation",
+      "type": "run-function",
+      "transitions": [
+        {
+          "next": "Copy_of_send_message_3",
+          "event": "success"
+        },
+        {
+          "event": "fail"
+        }
+      ],
+      "properties": {
+        "service_sid": "default",
+        "environment_sid": "",
+        "offset": {
+          "x": 930,
+          "y": 490
+        },
+        "function_sid": "",
+        "parameters": [
+          {
+            "value": "{{widgets.FertilizerData.parsed.Nitrogen}}",
+            "key": "nitrogen"
+          },
+          {
+            "value": "{{widgets.FertilizerData.parsed.Potassium}}",
+            "key": "potassium"
+          },
+          {
+            "value": "{{widgets.FertilizerData.parsed.Phosphorus}}",
+            "key": "phosphorus"
+          },
+          {
+            "value": "{{widgets.farmSize2.inbound.Body}}",
+            "key": "farmSize"
+          }
+        ],
+        "url": "https://sand-panther-7573.twil.io/fertilizer"
+      }
+    },
+    {
+      "name": "farmSize2",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "FertilizerData",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 730,
+          "y": -10
+        },
+        "service": "{{trigger.message.InstanceSid}}",
+        "channel": "{{trigger.message.ChannelSid}}",
+        "from": "{{flow.channel.address}}",
+        "body": "What is the size of your farm (in acres)?",
+        "timeout": "3600"
+      }
+    }
+  ],
+  "initial_state": "Trigger",
+  "flags": {
+    "allow_concurrent_calls": true
+  }
+}

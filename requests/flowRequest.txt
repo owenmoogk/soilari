@@ -1,0 +1,4 @@
+{{widgets.http_2.parsed.properties.layers[0].name}} - {{widgets.http_2.parsed.properties.layers[0].depths[0].values.mean}} {{widgets.http_2.parsed.properties.layers[0].unit_measure.mapped_units}}
+{{widgets.http_2.parsed.properties.layers[1].name}} - {{widgets.http_2.parsed.properties.layers[1].depths[0].values.mean}} {{widgets.http_2.parsed.properties.layers[1].unit_measure.mapped_units}}
+{{widgets.http_2.parsed.properties.layers[2].name}} - {{widgets.http_2.parsed.properties.layers[2].depths[0].values.mean}} {{widgets.http_2.parsed.properties.layers[2].unit_measure.mapped_units}}
+{{widgets.http_2.parsed.properties.layers[3].name}} - {{widgets.http_2.parsed.properties.layers[3].depths[0].values.mean}} {{widgets.http_2.parsed.properties.layers[3].unit_measure.mapped_units}}
